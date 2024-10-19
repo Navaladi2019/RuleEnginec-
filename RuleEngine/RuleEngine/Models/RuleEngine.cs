@@ -1,11 +1,5 @@
 ﻿using RuleEngine.Helper;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RuleEngine.Models
 {
@@ -17,6 +11,15 @@ namespace RuleEngine.Models
             this.Ctx = Utils.ConvertToExpando(Inputparam);
         }
         public readonly ITGRuleSet RuleSet;
+        /// <summary>
+        /// Global Context, it can be used to set object in rules and propogate from Rule A to B and so on.
+        /// </summary>
         public required ExpandoObject Ctx { get; set; } = [];
+
+
+        public async Task ExecuteAsync()
+        {
+
+        }
     }
 }

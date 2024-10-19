@@ -18,9 +18,14 @@ namespace RuleEngine.Test.Utils_Test
             Assert.IsTrue(obj.Name == "Naval");
         }
 
+        [TestMethod]
         public void Test_ConvertObject_To_ExpandoObject()
         {
             var obj = new Utils_TestModels();
+            var ii = new { obj };
+            dynamic expando =  Utils.ConvertToExpando(ii);
+            Assert.IsTrue(expando.obj == obj);
+            Utils.SetProperty(expando.obj, "Name", "Naval");
 
         }
     }
