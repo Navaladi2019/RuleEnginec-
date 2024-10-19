@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +26,23 @@ namespace RuleEngine.Helper
             var setter = expression.Compile();
             setter(obj, value);
 
+        }
+
+        public static ExpandoObject ConvertToExpando<T>(T obj)
+        {
+            ExpandoObject expando = new ExpandoObject();
+            var expandoDict = expando as IDictionary<string, object>;
+            PropertyInfo[] properties = typeof(T).GetProperties();
+
+            foreach (var property in properties)
+            {
+                if (property.CanRead)
+                {
+                    var value = property.GetValue(obj);
+                    expandoDict[property.Name] = value;
+                }
+            }
+            return expando;
         }
     }
 }
