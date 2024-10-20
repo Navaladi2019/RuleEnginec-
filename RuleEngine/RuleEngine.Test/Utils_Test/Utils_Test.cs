@@ -24,9 +24,8 @@ namespace RuleEngine.Test.Utils_Test
             var obj = new Utils_TestModels();
             var ii = new { obj };
             dynamic expando =  Utils.ConvertToExpando(ii);
-            Assert.IsTrue(expando.obj == obj);
             Utils.SetProperty(expando.obj, "Name", "Naval");
-
+            Assert.IsTrue(expando.obj == obj);
         }
     }
 }

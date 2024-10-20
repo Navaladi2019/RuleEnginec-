@@ -25,7 +25,6 @@ namespace RuleEngine.Helper
             var expression = Expression.Lambda<Action<T, object>>(assignExpression, parameterExpression, valueExpression);
             var setter = expression.Compile();
             setter(obj, value);
-
         }
 
         public static ExpandoObject ConvertToExpando<T>(T obj)

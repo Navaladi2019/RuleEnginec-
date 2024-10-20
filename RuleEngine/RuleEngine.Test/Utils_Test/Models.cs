@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RuleEngine.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,6 @@ namespace RuleEngine.Test.Utils_Test
     {
         public string Name { get; set; }
         public string Age { get; set; }
+        public ValidationRule Rule { get; set; }
     }
 }

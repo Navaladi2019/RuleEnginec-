@@ -3,10 +3,12 @@
 namespace RuleEngine.Models
 {
   
-
     public abstract class ITGRule
     {
        public abstract int Id {  get; set; }
+        /// <summary>
+        /// Expression is always string type, may be in future we can try to cha
+        /// </summary>
        public abstract string Expression { get; set; }
        public abstract string Name { get; set; }
        public RuleStatus Status { get; set; }
@@ -23,6 +25,8 @@ namespace RuleEngine.Models
         /// If the Operator is not set or null then these rules will not execute
         /// </summary>
         public List<ITGRule> Rules { get;set; } = [] ;
+
+
     }
 
   

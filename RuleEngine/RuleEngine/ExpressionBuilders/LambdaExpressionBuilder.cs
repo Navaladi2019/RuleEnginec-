@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RuleEngine.ExpressionBuilders
 {
-    public class LambdaExpressionBuilder
+    public class LambdaExpressionBuilder : ExpressionBuilderBase
     {
 
     }
