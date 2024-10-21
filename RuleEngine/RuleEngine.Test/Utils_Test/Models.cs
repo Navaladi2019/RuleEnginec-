@@ -10,7 +10,7 @@ namespace RuleEngine.Test.Utils_Test
     public class Utils_TestModels
     {
         public string Name { get; set; }
-        public string Age { get; set; }
+        public int Age { get; set; }
         public ValidationRule Rule { get; set; }
     }
 }

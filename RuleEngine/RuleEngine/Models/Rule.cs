@@ -14,18 +14,15 @@ namespace RuleEngine.Models
        public RuleStatus Status { get; set; }
        public bool Enabled { get; set; } = true;
 
-        /// <summary>
-        /// If the Rule Set is disabled then we will always fire OnSuccess Action
-        /// </summary>
-        public required RuleAction RuleAction { get; set; }
-
-        public RuleOperator Operator {  get; set; }
+        public List<ITGRule> SuccessRules { get; set; } = [];
 
         /// <summary>
-        /// If the Operator is not set or null then these rules will not execute
+        /// moves to next success rule and executes
         /// </summary>
-        public List<ITGRule> Rules { get;set; } = [] ;
+        public bool ContinueOnError { get; set; }
+        public string Message { get; set; } = string.Empty;
 
+        public List<ITGRule> FailureRules { get; set; } = [];
 
     }
 

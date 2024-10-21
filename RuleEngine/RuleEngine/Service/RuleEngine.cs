@@ -1,14 +1,15 @@
 ﻿using RuleEngine.Helper;
+using RuleEngine.Models;
 using System.Dynamic;
 
-namespace RuleEngine.Models
+namespace RuleEngine.Service
 {
     public class RuleEngine
     {
         public RuleEngine(dynamic Inputparam, ITGRuleSet RulesetParam)
         {
-            this.RuleSet= RulesetParam;
-            this.Ctx = Utils.ConvertToExpando(Inputparam);
+            RuleSet = RulesetParam;
+            Ctx = Utils.ConvertToExpando(Inputparam);
         }
         public readonly ITGRuleSet RuleSet;
         /// <summary>
@@ -19,6 +20,7 @@ namespace RuleEngine.Models
 
         public async Task ExecuteAsync()
         {
+
 
         }
     }
