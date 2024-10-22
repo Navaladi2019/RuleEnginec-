@@ -5,6 +5,7 @@ namespace RuleEngine.Models
     {
         Pass,
         Fail,
-        Skipped
+        Skipped,
+        Pending
     }
 }

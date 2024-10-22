@@ -16,7 +16,7 @@ namespace RuleEngine.Test
         public void ExpressionBuilder_Tests()
         {
             var builder = new ExpressionBuilderFactory();
-            ITGRule rule = new ValidationRule { Expression="",Id=1,Name="Validation Rule",RuleAction =new RuleAction() };
+            ITGRule rule = new ValidationRule { Expression="",Id=1,Name="Validation Rule"};
             var LambdaExpressionBuilder = builder.GetBuilder(rule);
             Assert.IsInstanceOfType<LambdaExpressionBuilder>(LambdaExpressionBuilder);
             Assert.ThrowsException<ArgumentNullException>(()=>builder.GetBuilder(null));

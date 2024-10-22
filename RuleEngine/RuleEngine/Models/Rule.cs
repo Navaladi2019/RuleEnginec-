@@ -11,7 +11,7 @@ namespace RuleEngine.Models
         /// </summary>
        public abstract string Expression { get; set; }
        public abstract string Name { get; set; }
-       public RuleStatus Status { get; set; }
+       public RuleStatus Status { get; set; } = RuleStatus.Pending;
        public bool Enabled { get; set; } = true;
 
         public List<ITGRule> SuccessRules { get; set; } = [];

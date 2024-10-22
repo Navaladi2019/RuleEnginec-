@@ -24,10 +24,9 @@ namespace RuleEngine.Models
         public object Value { get; private set; }
         public ParameterExpression ParameterExpression { get; private set; }
 
-        public static ParameterExpression Create(string name, object value)
+        public static RuleParameter Create(string name, object value)
         {
-            var ruleParameter = new RuleParameter(name, value);
-            return ruleParameter.ParameterExpression;
+            return new RuleParameter(name, value);
         }
 
     }
