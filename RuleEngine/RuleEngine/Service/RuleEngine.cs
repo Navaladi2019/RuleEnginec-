@@ -8,17 +8,25 @@ namespace RuleEngine.Service
     public class RuleEngine
     {
         public readonly Stack<ITGRule> RuleExecutionStack = new Stack<ITGRule>();
-        public RuleEngine(dynamic Inputparam, ITGRuleSet RulesetParam)
+        private readonly dynamic Inputparam;
+        public RuleEngine(object Inputparam, ITGRuleSet RulesetParam)
         {
             RuleSet = RulesetParam;
+            this.Inputparam = Inputparam;
             Ctx = Utils.ConvertToExpando(Inputparam);
+            InitContext();
+        }
+
+
+        private void InitContext()
+        {
             Ctx.TryAdd("ErrorMessage", new List<string>());
         }
         public readonly ITGRuleSet RuleSet;
         /// <summary>
         /// Global Context, it can be used to set object in rules and propogate from Rule A to B and so on.
         /// </summary>
-        public required ExpandoObject Ctx { get; set; } = [];
+        public readonly ExpandoObject Ctx;
 
         public RuleEngineStatus Status { get; set; }
 
@@ -53,7 +61,7 @@ namespace RuleEngine.Service
                     else
                     {
                         rules[i].Status = RuleStatus.Fail;
-                        if (rules[i].Message != null) {
+                        if (rules[i].Message != null && rules[i].Message != string.Empty) {
                             (Ctx.First(x => x.Key == "ErrorMessage").Value as List<string>).Add(rules[i].Message);
                          }
                         if (rules[i].ContinueOnError) {

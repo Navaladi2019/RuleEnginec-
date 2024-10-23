@@ -1,0 +1,1 @@
+-- Rule engine parameter cannot be internal or private property as converting to the expando object is giving issues, so parameter should always be public

@@ -34,7 +34,7 @@ namespace RuleEngine.Helper
         {
             ExpandoObject expando = new ExpandoObject();
             var expandoDict = expando as IDictionary<string, object>;
-            PropertyInfo[] properties = typeof(T).GetProperties();
+            PropertyInfo[] properties =obj.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
 
             foreach (var property in properties)
             {
