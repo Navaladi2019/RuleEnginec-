@@ -1,15 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RuleEngine.ExpressionBuilders;
+using RuleEngine.Models;
+using System;
+using System.Dynamic;
 
-namespace RuleEngine.Models
+namespace RuleEngine
 {
-    public class ValidationRule : ITGRule
+    public class ValidationRule : ITGRule, IFailureActionRule, ISuccessActionRule, ILambdaExpressionRules
     {
-        public required override int Id { get; set; }
-        public required override string Expression { get; set; }
-        public required override string Name { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public List<ITGRule> FailureRules { get; set; } = [];
+        public List<ITGRule> SuccessRules { get; set; } = [];
+        public string Expression { get; set; } = string.Empty;
+
+        public override async Task ExecutesAsync(ExpandoObject ctx)
+        {
+                var parser = new RuleExpressionParser();
+                var result = parser.Evaluate<bool>(Expression, [RuleParameter.Create("ctx", ctx)]);
+                if (result)
+                {
+                    Status = RuleStatus.Pass;
+                    await Engine.ExecuteRulesAsync(SuccessRules,ctx);
+                }
+                else
+                {
+                    Status = RuleStatus.Fail;
+                    if (Message != null && Message != string.Empty)
+                    {
+                        ctx.SetRuleEngineErrMessage(Message);
+                    }
+                    if (ContinueOnError)
+                    {
+                        await Engine.ExecuteRulesAsync(FailureRules,ctx);
+                    }
+                    else
+                    {
+                        ctx.SetEngineStatus(RuleEngineStatus.Failed);
+                    }
+                }
+        }
     }
 }

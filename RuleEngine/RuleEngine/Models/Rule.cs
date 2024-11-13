@@ -1,30 +1,30 @@
 ﻿
 
-namespace RuleEngine.Models
+using System.Dynamic;
+
+namespace RuleEngine
 {
   
     public abstract class ITGRule
     {
-       public abstract int Id {  get; set; }
-        /// <summary>
-        /// Expression is always string type, may be in future we can try to cha
-        /// </summary>
-       public abstract string Expression { get; set; }
-       public abstract string Name { get; set; }
+       public  Guid Id {  get; set; }
+       public  string Name { get; set; }
        public RuleStatus Status { get; set; } = RuleStatus.Pending;
        public bool Enabled { get; set; } = true;
-
-        public List<ITGRule> SuccessRules { get; set; } = [];
 
         /// <summary>
         /// moves to next success rule and executes
         /// </summary>
         public bool ContinueOnError { get; set; }
-        public string Message { get; set; } = string.Empty;
-
-        public List<ITGRule> FailureRules { get; set; } = [];
+        public RuleParserType RuleParserType { get;set; }
+        public abstract Task ExecutesAsync(ExpandoObject ctx);
 
     }
 
+    public enum RuleParserType
+    {
+        LambdaExpression,
+        CSharpEpression
+    }
   
 }

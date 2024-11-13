@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace RuleEngine.Helper
+namespace RuleEngine
 {
     public static class Utils
     {

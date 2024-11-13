@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Dynamic;
 
-namespace RuleEngine.Models
+namespace RuleEngine.RuleType
 {
-    public class AssignmentRule : ITGRule
+    public class AssignmentRule : ITGRule, ILambdaExpressionRules
     {
-        public required override int Id { get; set; }
-        public required override string Expression { get; set; }
-        public required override string Name { get; set; }
+        public string Expression { get ; set; } = string.Empty;
+        public override Task ExecutesAsync(ExpandoObject ctx)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
