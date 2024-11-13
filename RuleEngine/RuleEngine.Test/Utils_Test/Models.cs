@@ -12,5 +12,6 @@ namespace RuleEngine.Test.Utils_Test
         public string Name { get; set; }
         public int Age { get; set; }
         public ValidationRule Rule { get; set; }
+        public Utils_TestModels child { get; set; }
     }
 }

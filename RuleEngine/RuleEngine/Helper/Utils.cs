@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RuleEngine.ExpressionBuilders;
+using RuleEngine.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -29,6 +31,66 @@ namespace RuleEngine
             var setter = expression.Compile();
             setter(obj, value);
         }
+
+        // agenda for this is create a memcache ->  key, value(dynamic)
+        // setter we have to create nested setter like obj1.obj2.obj3.property = obj1.obj2.obj3.propert"
+        public static void SetPropertyByExpression(ExpandoObject ctx, string leftSide, string rightSide)
+        {
+            var parser = new RuleExpressionParser();
+            var parameterExpression = Expression.Parameter(typeof(object), "obj");
+            var value =   parser.Evaluate<object>(rightSide, [RuleParameter.Create("ctx", ctx)]);
+            var valueExpression = Expression.Parameter(typeof(object), "value");
+            var propertyExpression = BuildMemberExpression(ctx, leftSide);
+            var convertedValue = Expression.Convert(valueExpression, propertyExpression.Type);
+            var assignExpression = Expression.Assign(propertyExpression, convertedValue);
+            var lambda = Expression.Lambda<Action<object, object>>(assignExpression, parameterExpression, valueExpression);
+            var setter = lambda.Compile();
+            setter(ctx,value);
+        }
+
+        private static Expression BuildMemberExpression(object rootObject, string propertyPath)
+        {
+            rootObject = GetTypedObject(rootObject);
+            // Split the property path
+            var properties = propertyPath.Split('.');
+
+            Expression expr = Expression.Constant(rootObject);
+            Type type = rootObject.GetType();
+
+            // Traverse the properties
+            for (int i =1;i < properties.Length;i++)
+            {
+                var property = properties[i];
+                if (typeof(IDictionary<string, object>).IsAssignableFrom(type))
+                {
+                    // For ExpandoObject or any IDictionary<string, object>
+                    expr = Expression.Call(
+                        typeof(Utils).GetMethod(nameof(GetExpandoValue), BindingFlags.Static | BindingFlags.NonPublic),
+                        expr, Expression.Constant(property)
+                    );
+                    type = typeof(object);  // We don’t know the actual type, so set it to object
+                }
+                else
+                {
+                    // For regular properties on strongly-typed objects
+                    var propInfo = type.GetProperty(property, BindingFlags.Public | BindingFlags.Instance);
+                    if (propInfo == null)
+                        throw new ArgumentException($"Property '{property}' not found on type '{type.Name}'");
+
+                    expr = Expression.Property(expr, propInfo);
+                    type = propInfo.PropertyType;
+                }
+            }
+
+            return expr;
+        }
+
+        // Helper method to safely get a value from an ExpandoObject
+        private static object GetExpandoValue(IDictionary<string, object> expando, string propertyName)
+        {
+            return expando.TryGetValue(propertyName, out var value) ? value : null;
+        }
+
 
         public static ExpandoObject ConvertToExpando<T>(T obj)
         {
