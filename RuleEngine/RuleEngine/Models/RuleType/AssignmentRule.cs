@@ -1,4 +1,6 @@
-﻿using System.Dynamic;
+﻿using RuleEngine.ExpressionBuilders;
+using RuleEngine.Models;
+using System.Dynamic;
 
 namespace RuleEngine.RuleType
 {
@@ -19,7 +21,10 @@ namespace RuleEngine.RuleType
             if (string.IsNullOrWhiteSpace(leftSide) || string.IsNullOrWhiteSpace(rightSide)) {
                 throw new Exception($"Invalid Expression {Expression} on assignment operation");
             }
-            Utils.SetPropertyByExpression( ctx, leftSide, rightSide );
+            var parser = new RuleExpressionParser();
+            var value = parser.Evaluate<object>(rightSide, [RuleParameter.Create("ctx", ctx)]);
+            var func = Utils.GetSetterExpression( ctx, leftSide, rightSide );
+            func(ctx, value);
             return Task.CompletedTask;
         }
     }

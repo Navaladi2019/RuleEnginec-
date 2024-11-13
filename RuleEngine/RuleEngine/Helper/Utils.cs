@@ -34,18 +34,23 @@ namespace RuleEngine
 
         // agenda for this is create a memcache ->  key, value(dynamic)
         // setter we have to create nested setter like obj1.obj2.obj3.property = obj1.obj2.obj3.propert"
-        public static void SetPropertyByExpression(ExpandoObject ctx, string leftSide, string rightSide)
+        public static Action<object,object> GetSetterExpression(ExpandoObject ctx, string leftSide, string rightSide)
         {
-            var parser = new RuleExpressionParser();
             var parameterExpression = Expression.Parameter(typeof(object), "obj");
-            var value =   parser.Evaluate<object>(rightSide, [RuleParameter.Create("ctx", ctx)]);
             var valueExpression = Expression.Parameter(typeof(object), "value");
             var propertyExpression = BuildMemberExpression(ctx, leftSide);
             var convertedValue = Expression.Convert(valueExpression, propertyExpression.Type);
             var assignExpression = Expression.Assign(propertyExpression, convertedValue);
             var lambda = Expression.Lambda<Action<object, object>>(assignExpression, parameterExpression, valueExpression);
-            var setter = lambda.Compile();
-            setter(ctx,value);
+            return  lambda.Compile();
+        }
+
+        public static void SetPropertyByExpression(ExpandoObject ctx, string leftSide, string rightSide)
+        {
+            var parser = new RuleExpressionParser();
+            var value = parser.Evaluate<object>(rightSide, [RuleParameter.Create("ctx", ctx)]);
+            var func = GetSetterExpression(ctx, leftSide, rightSide);
+            func(ctx, value);
         }
 
         private static Expression BuildMemberExpression(object rootObject, string propertyPath)
