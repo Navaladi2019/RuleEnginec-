@@ -228,5 +228,34 @@ namespace RuleEngine
             var genericMethod = methodInfo.MakeGenericMethod(innerType);
             return genericMethod.Invoke(null, new[] { self }) as IList;
         }
+
+
+        public static bool AreSame(List<ITGRule> listA, List<ITGRule> listB)
+        {
+            if (listA.Count != listB.Count)
+            {
+                return false;
+            }
+            var list1 = listA.Select(x => x.Id).ToList();
+            var list2 = listB.Select(x => x.Id).ToList();
+            if(!list1.Except(list2).Any() && !list2.Except(list1).Any() == false)
+            {
+                return false;
+            }
+
+            foreach (var x in listA) {
+                var y = listB.First(y=>y.Id == x.Id);
+                if (!y.IsEqual(x)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+        public static T Evaluate<T>(this Func<object[], T> func, string expression, RuleParameter[] ruleParams)
+        {
+            return func(ruleParams.Select(x => x.Value).ToArray());
+        }
     }
 }

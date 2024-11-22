@@ -1,9 +1,11 @@
-﻿using RuleEngine.ExpressionBuilders;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using RuleEngine.ExpressionBuilders;
 using RuleEngine.Models;
 using System.Dynamic;
 
 namespace RuleEngine
 {
+    [BsonDiscriminator("IfElseRuleSet")]
     public class IfElseRuleSet : ITGRule
     {
         public List<IFElseRule> Rules { get; set; } = [];
@@ -18,6 +20,11 @@ namespace RuleEngine
                 }
             }
         }
+
+        public override bool IsEqual(ITGRule obj)
+        {
+           return base.IsEqual(obj) && Utils.AreSame(Rules.Cast<ITGRule>().ToList(), ((IfElseRuleSet)obj).Rules.Cast<ITGRule>().ToList()) ;
+        }
     }
 
     public class IFElseRule : ITGRule, ILambdaExpressionRules, ISuccessActionRule
@@ -29,7 +36,9 @@ namespace RuleEngine
         public override async Task ExecutesAsync(ExpandoObject ctx)
         {
             var parser = new RuleExpressionParser();
-            var result = Type == IfElseRuleType.ELSE || parser.Evaluate<bool>(Expression, [RuleParameter.Create("ctx", ctx)]);
+            var param = new RuleParameter[] { RuleParameter.Create("ctx", ctx) };
+            var func = this.GetOrCreateFunc(ctx, (e) => { return parser.Compile<bool>(Expression, param); });
+            var result = Type == IfElseRuleType.ELSE || func(param);
             if (result)
             {
                 Status = RuleStatus.Pass;
@@ -39,6 +48,14 @@ namespace RuleEngine
             {
                 Status = RuleStatus.Fail;
             }
+        }
+
+        public override bool IsEqual(ITGRule obj)
+        {
+           return base.IsEqual(obj) && this.Expression == ((IFElseRule)obj).Expression
+                &&  Utils.AreSame(SuccessRules.Cast<ITGRule>().ToList(), ((IFElseRule)obj).SuccessRules.Cast<ITGRule>().ToList());
+
+           
         }
     }
   

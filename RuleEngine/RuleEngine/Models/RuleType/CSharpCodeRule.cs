@@ -2,12 +2,18 @@
 using System;
 using System.Dynamic;
 using System.Reflection;
+using RuleEngine.RuleType;
+using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Attributes;
+using System.Numerics;
 
 namespace RuleEngine
 {
+    [BsonDiscriminator("CSharpCodeRule")]
     public class CSharpCodeRule : ITGRule
     {
-        public int Version { get; set; }
+        public string NameSpace { get; set; }
+        public string Code { get; set; }
         public override async Task ExecutesAsync(ExpandoObject ctx)
         {
             try
@@ -18,9 +24,17 @@ namespace RuleEngine
                 var result = await obj.ExecutesAsync(ctx);
                 Status = result.Status;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 Status = RuleStatus.Error;
             }
+        }
+
+        public override bool IsEqual(ITGRule obj)
+        {
+            return base.IsEqual(obj) && Version == ((CSharpCodeRule)obj).Version
+                && NameSpace == ((CSharpCodeRule)obj).NameSpace
+                && Code == ((CSharpCodeRule)obj).Code;
         }
     }
 
@@ -33,5 +47,5 @@ namespace RuleEngine
     {
         public RuleStatus Status { get; set; }
     }
- 
+
 }

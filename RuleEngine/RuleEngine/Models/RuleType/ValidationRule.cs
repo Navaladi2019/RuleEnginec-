@@ -1,10 +1,12 @@
-﻿using RuleEngine.ExpressionBuilders;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using RuleEngine.ExpressionBuilders;
 using RuleEngine.Models;
 using System;
 using System.Dynamic;
 
 namespace RuleEngine
 {
+    [BsonDiscriminator("ValidationRule")]
     public class ValidationRule : ITGRule, IFailureActionRule, ISuccessActionRule, ILambdaExpressionRules
     {
         public string Message { get; set; } = string.Empty;
@@ -12,10 +14,16 @@ namespace RuleEngine
         public List<ITGRule> SuccessRules { get; set; } = [];
         public string Expression { get; set; } = string.Empty;
 
+        /// <summary>
+        /// moves to next success rule and executes
+        /// </summary>
+        public bool ContinueOnError { get; set; }
         public override async Task ExecutesAsync(ExpandoObject ctx)
         {
                 var parser = new RuleExpressionParser();
-                var result = parser.Evaluate<bool>(Expression, [RuleParameter.Create("ctx", ctx)]);
+                var param = new RuleParameter[] { RuleParameter.Create("ctx", ctx) };
+                var func = this.GetOrCreateFunc(ctx, (e) => { return parser.Compile<bool>(Expression, param); });
+                var result = func(param);
                 if (result)
                 {
                     Status = RuleStatus.Pass;
@@ -38,5 +46,17 @@ namespace RuleEngine
                     }
                 }
         }
+        public override bool IsEqual(ITGRule obj)
+        {
+            if (obj is not ValidationRule otherRule)
+                return false;
+
+            return  Utils.AreSame(FailureRules.OfType<ITGRule>().ToList(), otherRule.FailureRules.OfType<ITGRule>().ToList()) &&
+                   Utils.AreSame(SuccessRules.OfType<ITGRule>().ToList(), otherRule.SuccessRules.OfType<ITGRule>().ToList()) &&
+                   Message == otherRule.Message &&
+                   base.IsEqual(obj);
+          
+        }
+
     }
 }

@@ -1,9 +1,11 @@
-﻿using RuleEngine.ExpressionBuilders;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using RuleEngine.ExpressionBuilders;
 using RuleEngine.Models;
 using System.Dynamic;
 
 namespace RuleEngine.RuleType
 {
+    [BsonDiscriminator("AssignmentRule")]
     public class AssignmentRule : ITGRule, ILambdaExpressionRules
     {
         public string Expression { get ; set; } = string.Empty;
@@ -26,6 +28,12 @@ namespace RuleEngine.RuleType
             var func = Utils.GetSetterExpression( ctx, leftSide, rightSide );
             func(ctx, value);
             return Task.CompletedTask;
+        }
+
+        public override bool IsEqual(ITGRule obj)
+        {
+            return base.IsEqual(obj) && Expression == ((AssignmentRule)obj).Expression;
+
         }
     }
 }

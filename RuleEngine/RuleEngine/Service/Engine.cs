@@ -19,7 +19,8 @@ namespace RuleEngine
 
         private void InitContext()
         {
-
+            Ctx.SetRuleSetId(RuleSet.RuleSetId);
+            Ctx.SetEngineStatus(RuleEngineStatus.Created);
             Ctx.SetEngineStatus(RuleEngineStatus.Created);
         }
 
@@ -62,6 +63,7 @@ namespace RuleEngine
                             continue;
                         }
                         await rule.ExecutesAsync(ctx);
+                        rule.Status = RuleStatus.Pass;
                     }
                 }
                 catch (Exception ex)

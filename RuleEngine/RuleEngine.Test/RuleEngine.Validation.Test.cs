@@ -1,4 +1,5 @@
 ﻿using RuleEngine.Models;
+using RuleEngine.RuleType;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -17,21 +18,21 @@ namespace RuleEngine.Test
         public async Task TestValidationBasicMode()
         {
             var ruleset = new ITGRuleSet { Description = "Validate Withdrawal", Name = "Validate withdrawal", Rules = [] };
-            ruleset.Rules.Add(new ValidationRule { Expression = "ctx.Application.Age > 65", Id = Guid.NewGuid(), Name = "Validate Age", ContinueOnError = true, Message = "Applicant age should be greateer than 65" });
-            ruleset.Rules.Add(new ValidationRule { Expression = "ctx.Application.Account != null && ctx.Application.Account.Availablebalance > 0", Id = Guid.NewGuid(), Name = "Validate Availablebalance", ContinueOnError = true, Message = "Applicant Account balance should be greater than 0." });
-            ruleset.Rules.Add(new ValidationRule { Expression = "ctx.ErrorMessage.Count == 0", Id = Guid.NewGuid(), Name = "Fail on Validations fail", ContinueOnError = false, Message = "" });
+            ruleset.Rules.Add(new IfElseRuleSet {  Id = Guid.NewGuid(), Name = "Validate Age", 
+                Rules = new List<IFElseRule> { new IFElseRule { Expression="ctx.Application.Age == 30", Type = IfElseRuleType.IF,
+                    SuccessRules = new List<ITGRule> { new AssignmentRule { Expression = "ctx.Application.Age = 55"} } },
+                new IFElseRule { Expression="", Type = IfElseRuleType.ELSE,
+                    SuccessRules = new List<ITGRule> { new AssignmentRule { Expression = "ctx.Application.Age = 99"} } }} });
+
 
 
             var basicClass = new BasicRuleEngine { Age = 60, City = "PORTVILA", Status = "Pendingcreation", Account = new MemberAccount { Availablebalance = 1000 }, AvailableWithdrawalAmount = 0 };
 
-            dynamic input = new {  };
-            input.Application = basicClass;
-            input.Age = 30;
-            input.tyype = "";
+      
 
             var expo = new ExpandoObject();
             (expo as IDictionary<string, object>).Add("Application", basicClass);
-            var engine = new Engine(input, ruleset);
+            var engine = new Engine(new {Application = basicClass}, ruleset);
             await engine.ExecuteAsync();
             Console.WriteLine((engine.Ctx as dynamic).ErrorMessage);
 

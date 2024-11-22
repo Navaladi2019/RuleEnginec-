@@ -35,6 +35,15 @@ namespace RuleEngine
             return ctx.FirstOrDefault(x => x.Key == "ErrorMessage").Value as List<string> ?? [];
         }
 
-       
+        public static void SetRuleSetId(this ExpandoObject ctx, string Id)
+        {
+            (ctx as IDictionary<string, object>)["RuleSetId"] = Id;
+        }
+        public static string GetyRuleSetId(this ExpandoObject ctx)
+        {
+            _ = (ctx as IDictionary<string, object>).TryGetValue("RuleSetId", out object id);
+            return (string)id!;
+        }
+
     }
 }
