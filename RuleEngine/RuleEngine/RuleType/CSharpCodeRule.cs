@@ -18,17 +18,10 @@ namespace RuleEngine
         public List<(string Path, string DLL)> ReferenceDLLs { get; set; } = [];
         public override async Task ExecutesAsync(ExpandoObject ctx)
         {
-            try
-            {
 
                 var instance = GetRuleInstance();
                 var result = await instance.ExecutesAsync(ctx);
                 Status = result.Status;
-            }
-            catch (Exception ex)
-            {
-                Status = RuleStatus.Error;
-            }
         }
 
         private Assembly GetAssembly()
