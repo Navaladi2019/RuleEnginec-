@@ -17,18 +17,18 @@ namespace RuleEngine
                 throw new Exception($"Could not parse {Expression} on assignment operation");
             }
 
-            var leftSide = expressions[0].Trim();
-            var rightSide = expressions[1].Trim();
+            var leftExpression = expressions[0].Trim();
+            var rightExpression = expressions[1].Trim();
 
-            if (string.IsNullOrWhiteSpace(leftSide) || string.IsNullOrWhiteSpace(rightSide)) {
+            if (string.IsNullOrWhiteSpace(leftExpression) || string.IsNullOrWhiteSpace(rightExpression)) {
                 throw new Exception($"Invalid Expression {Expression} on assignment operation");
             }
             var parser = new RuleExpressionParser();
             var param = new RuleParameter[] { RuleParameter.Create("ctx", ctx) };
-            var rightSideFunc = this.GetCachedOrBuild(ctx,(e)=> { return parser.Compile<object>(rightSide, param);},"Right" ) ;
-            var leftSideFunc = this.GetCachedOrBuild(ctx, (e) => { return Utils.GetSetterExpression(ctx, leftSide, rightSide); }, "Left");
-            var value = rightSideFunc(param.Select(x => x.Value).ToArray());
-            leftSideFunc(ctx, value);
+            var rightFunc = this.GetCachedOrBuild(ctx,(e)=> { return parser.Compile<object>(rightExpression, param);},"Right" ) ;
+            var leftFunc = this.GetCachedOrBuild(ctx, (e) => { return Utils.GetSetterExpression(ctx, leftExpression, rightExpression); }, "Left");
+            var value = rightFunc(param.Select(x => x.Value).ToArray());
+            leftFunc(ctx, value);
             return Task.CompletedTask;
         }
 

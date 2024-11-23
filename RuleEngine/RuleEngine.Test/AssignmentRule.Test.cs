@@ -15,7 +15,7 @@ namespace RuleEngine.Test
     {
 
         [TestMethod]
-        public async Task TestValidationBasicMode()
+        public async Task Is_Value_Set_On_NestedObj()
         {
             var ruleset = new ITGRuleSet { Description = "Validate Withdrawal", Name = "Validate withdrawal", Rules = [] };
             ruleset.Rules.Add(new AssignmentRule { Expression = "ctx.obj.child.Age = 999", Id = Guid.NewGuid(), Name = "Assign Age" });
@@ -27,7 +27,7 @@ namespace RuleEngine.Test
             var ii = new { obj };
             var engine = new Engine(ii, ruleset);
             await engine.ExecuteAsync();
-            Console.WriteLine((engine.Ctx as dynamic).ErrorMessage);
+            Assert.AreEqual(obj.child.Age,999);
         }
     }
 }

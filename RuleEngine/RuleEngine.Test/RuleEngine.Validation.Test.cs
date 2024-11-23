@@ -24,14 +24,7 @@ namespace RuleEngine.Test
                 new IFElseRule { Id = Guid.NewGuid(),Expression="", Type = IfElseRuleType.ELSE,
                     SuccessRules = new List<ITGRule> { new AssignmentRule { Id = Guid.NewGuid(), Expression = "ctx.Application.Age = 99"} } }} });
 
-
-
             var basicClass = new BasicRuleEngine { Age = 60, City = "PORTVILA", Status = "Pendingcreation", Account = new MemberAccount { Availablebalance = 1000 }, AvailableWithdrawalAmount = 0 };
-
-      
-
-            //var expo = new ExpandoObject();
-            //(expo as IDictionary<string, object>).Add("Application", basicClass);
             var engine = new Engine(new {Application = basicClass}, ruleset);
             await engine.ExecuteAsync();
             Console.WriteLine((engine.Ctx as dynamic).ErrorMessage);
