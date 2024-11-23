@@ -3,10 +3,10 @@ using RuleEngine.ExpressionBuilders;
 using RuleEngine.Models;
 using System.Dynamic;
 
-namespace RuleEngine.RuleType
+namespace RuleEngine
 {
     [BsonDiscriminator("AssignmentRule")]
-    public class AssignmentRule : ITGRule, ILambdaExpressionRules
+    public class AssignmentRule : ITGRule
     {
         public string Expression { get ; set; } = string.Empty;
         public override Task ExecutesAsync(ExpandoObject ctx)
@@ -24,9 +24,11 @@ namespace RuleEngine.RuleType
                 throw new Exception($"Invalid Expression {Expression} on assignment operation");
             }
             var parser = new RuleExpressionParser();
-            var value = parser.Evaluate<object>(rightSide, [RuleParameter.Create("ctx", ctx)]);
-            var func = Utils.GetSetterExpression( ctx, leftSide, rightSide );
-            func(ctx, value);
+            var param = new RuleParameter[] { RuleParameter.Create("ctx", ctx) };
+            var rightSideFunc = this.GetCachedOrBuild(ctx,(e)=> { return parser.Compile<object>(rightSide, param);},"Right" ) ;
+            var leftSideFunc = this.GetCachedOrBuild(ctx, (e) => { return Utils.GetSetterExpression(ctx, leftSide, rightSide); }, "Left");
+            var value = rightSideFunc(param.Select(x => x.Value).ToArray());
+            leftSideFunc(ctx, value);
             return Task.CompletedTask;
         }
 

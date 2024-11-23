@@ -14,14 +14,20 @@ namespace RuleEngine.Compiler
     public class CSharpCompiler
     {
 
-        public  string Execute(Guid RuleId,int version, string Code, List<(string Path, string DLL)> ReferenceDLLs = null)
+        public static  void Execute(string filename,string folderPath, string Code, List<(string Path, string DLL)> ReferenceDLLs = null)
         {
             string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             CSharpCompilationOptions defaultCompilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithOverflowChecks(true)
                 .WithOptimizationLevel(OptimizationLevel.Release);
-            List<MetadataReference> References  = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+            var assemblies = new HashSet<Assembly> { Assembly.GetExecutingAssembly() };
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+                assemblies.Add(assembly);
+            }
+            
+
+            List<MetadataReference> References  = assemblies
+            .Where(a =>  !string.IsNullOrWhiteSpace(a.Location))
             .Select(a => MetadataReference.CreateFromFile(a.Location))
             .Cast<MetadataReference>()
             .ToList();
@@ -30,16 +36,15 @@ namespace RuleEngine.Compiler
                 References.Add(MetadataReference.CreateFromFile(Path.Combine(item.Path ?? assemblyPath, item.DLL)));
             }
             CSharpCompilation compilation = CSharpCompilation.Create(
-              RuleId.ToString()+version.ToString(),
+              filename.Split(".")[0],
                 syntaxTrees: new[] {
                 CSharpSyntaxTree.ParseText(Code)
                 },
                 references: References,
                 options: defaultCompilationOptions);
-            string folderPath = Path.Combine(assemblyPath, "ITGRules");
             System.IO.Directory.CreateDirectory(folderPath);
-            var filepath = Path.Combine(folderPath, $"{RuleId}.{version}.dll");
-            using (var fileStream = new FileStream(Path.Combine(folderPath,  $"{RuleId}.{version}.dll"), FileMode.OpenOrCreate))
+            
+            using (var fileStream = new FileStream(Path.Combine(folderPath,filename), FileMode.OpenOrCreate))
             {
                 var result = compilation.Emit(fileStream);
 
@@ -59,7 +64,6 @@ namespace RuleEngine.Compiler
                 }
                
             }
-            return filepath;
 
         }
     }

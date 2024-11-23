@@ -9,6 +9,8 @@ namespace RuleEngine.Models
     public enum RuleEngineStatus
     {
         Created,
+        Executing,
+        Executed,
         Faulted,
         Failed,
 

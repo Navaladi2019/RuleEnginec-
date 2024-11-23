@@ -25,9 +25,17 @@ namespace RuleEngine
         {
             if (ctx.FirstOrDefault(x => x.Key == "ErrorMessage").Value == null)
             {
-                (ctx as IDictionary<string, object>)["Status"] = new List<string>();
+                (ctx as IDictionary<string, object>)["ErrorMessage"] = new List<string>();
             }
             (ctx.First(x => x.Key == "ErrorMessage").Value as List<string>)!.Add(msg);
+        }
+
+        public static void InitializeRuleEngineErrMessage(this ExpandoObject ctx)
+        {
+            if (ctx.FirstOrDefault(x => x.Key == "ErrorMessage").Value == null)
+            {
+                (ctx as IDictionary<string, object>)["ErrorMessage"] = new List<string>();
+            }
         }
 
         public static List<string> GetRuleEngineErrMessages(this ExpandoObject ctx)

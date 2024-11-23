@@ -16,8 +16,10 @@ namespace RuleEngine.Test
         public void CompileBasicCCharpCode_Tests()
         {
             var assemblyname = Guid.NewGuid();
-            var compiler = new CSharpCompiler();
-            string filepath = compiler.Execute(assemblyname,1, "using System;\r\n\t\t\t\t\t\r\npublic class Program\r\n{\r\n\tpublic static int Main()\r\n\t{\r\n\t\tConsole.WriteLine(\"Hello World\");\r\n\t return 5;}\r\n}", []);
+            var folderName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ITGRule");
+            var filename = "1.dll"; ;
+            var filepath = Path.Combine(folderName, filename);
+           CSharpCompiler.Execute( filename, folderName, "using System;\r\n\t\t\t\t\t\r\npublic class Program\r\n{\r\n\tpublic static int Main()\r\n\t{\r\n\t\tConsole.WriteLine(\"Hello World\");\r\n\t return 5;}\r\n}", []);
             var assembly = Assembly.LoadFile(filepath);
             var type = assembly.GetType("Program");
             var method = type.GetMethod("Main");
@@ -27,10 +29,10 @@ namespace RuleEngine.Test
             var result = method.Invoke(instance, null);
             Assert.AreEqual<int>((int)result!, 5);;
 
-           // File.Delete(filepath);
-            compiler = new CSharpCompiler();
-            filepath = compiler.Execute(assemblyname,2, "using System;\r\n\t\t\t\t\t\r\npublic class Program\r\n{\r\n\tpublic static int Main()\r\n\t{\r\n\t\tConsole.WriteLine(\"Hello World\");\r\n\t return 6;}\r\n}", []);
+            filename = "2.dll";
+            CSharpCompiler.Execute( filename, folderName, "using System;\r\n\t\t\t\t\t\r\npublic class Program\r\n{\r\n\tpublic static int Main()\r\n\t{\r\n\t\tConsole.WriteLine(\"Hello World\");\r\n\t return 6;}\r\n}", []);
             var context2 = new PluginLoadContext();
+            filepath = Path.Combine(folderName, filename);
             var assembly2 = context2.LoadFromAssemblyPath(filepath);
             var type2 = assembly2.GetType("Program");
             var method2 = type2.GetMethod("Main");

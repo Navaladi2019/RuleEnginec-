@@ -17,12 +17,12 @@ namespace RuleEngine.Test
         [TestMethod]
         public async Task TestValidationBasicMode()
         {
-            var ruleset = new ITGRuleSet { Description = "Validate Withdrawal", Name = "Validate withdrawal", Rules = [] };
+            var ruleset = new ITGRuleSet { Description = "Validate Withdrawal", RuleSetId=Guid.NewGuid().ToString(),Name = "Validate withdrawal", Rules = [] };
             ruleset.Rules.Add(new IfElseRuleSet {  Id = Guid.NewGuid(), Name = "Validate Age", 
-                Rules = new List<IFElseRule> { new IFElseRule { Expression="ctx.Application.Age == 30", Type = IfElseRuleType.IF,
-                    SuccessRules = new List<ITGRule> { new AssignmentRule { Expression = "ctx.Application.Age = 55"} } },
-                new IFElseRule { Expression="", Type = IfElseRuleType.ELSE,
-                    SuccessRules = new List<ITGRule> { new AssignmentRule { Expression = "ctx.Application.Age = 99"} } }} });
+                Rules = new List<IFElseRule> { new IFElseRule { Id = Guid.NewGuid(), Expression="ctx.Application.Age == 30", Type = IfElseRuleType.IFELSE,
+                    SuccessRules = new List<ITGRule> { new AssignmentRule { Id = Guid.NewGuid(), Expression = "ctx.Application.Age = 55"} } },
+                new IFElseRule { Id = Guid.NewGuid(),Expression="", Type = IfElseRuleType.ELSE,
+                    SuccessRules = new List<ITGRule> { new AssignmentRule { Id = Guid.NewGuid(), Expression = "ctx.Application.Age = 99"} } }} });
 
 
 
@@ -30,8 +30,8 @@ namespace RuleEngine.Test
 
       
 
-            var expo = new ExpandoObject();
-            (expo as IDictionary<string, object>).Add("Application", basicClass);
+            //var expo = new ExpandoObject();
+            //(expo as IDictionary<string, object>).Add("Application", basicClass);
             var engine = new Engine(new {Application = basicClass}, ruleset);
             await engine.ExecuteAsync();
             Console.WriteLine((engine.Ctx as dynamic).ErrorMessage);

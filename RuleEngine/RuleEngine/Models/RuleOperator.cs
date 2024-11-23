@@ -1,6 +1,8 @@
 ﻿
 namespace RuleEngine.Models
 {
+
+    //TODO : Made for creating nested rule, can use this when we expand curent engine func.
     public enum RuleOperator
     {
         None,

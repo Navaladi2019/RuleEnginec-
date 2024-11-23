@@ -1,4 +1,5 @@
 ﻿using RuleEngine.Models;
+using RuleEngine.RuleType;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -15,14 +15,28 @@ namespace RuleEngine
     {
         private static readonly MemoryCache cache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
 
-        public static dynamic? Get(object key)
+        public static T GetCachedOrBuild<T>(this ITGRule rule, ExpandoObject ctx, Func<ICacheEntry, T> factory, string appendKey = "")
         {
-            return cache.Get(key);
+            return cache.GetOrCreate($"{ctx.GetyRuleSetId()}_{rule.Id}_{rule.Version}_{appendKey}", factory);
         }
 
-        public static Func<object[], bool>? GetOrCreateFunc(this ITGRule rule,ExpandoObject ctx, Func<ICacheEntry, Func<object[], bool>> factory)
+        public static void ClearAllKeysStartsWith(string prefix)
         {
-            return cache.GetOrCreate($"{ctx.GetyRuleSetId()}_{rule.Id}_{rule.Version}", factory);
+          var keys =  cache.Keys.Where(x => x is string && (x as string).StartsWith(prefix)).ToList();
+            foreach (var key in keys) { 
+            
+                cache.Remove(key);
+            }
+        }
+
+        public static void ClearAllCache()
+        {
+            cache.Clear();
+        }
+
+        public static void Clear(object key)
+        {
+            cache.Remove(key);
         }
 
     }

@@ -21,7 +21,7 @@ namespace RuleEngine
         {
             Ctx.SetRuleSetId(RuleSet.RuleSetId);
             Ctx.SetEngineStatus(RuleEngineStatus.Created);
-            Ctx.SetEngineStatus(RuleEngineStatus.Created);
+            Ctx.InitializeRuleEngineErrMessage();
         }
 
 
@@ -36,7 +36,12 @@ namespace RuleEngine
 
         public async Task ExecuteAsync()
         {
+            Ctx.SetEngineStatus(RuleEngineStatus.Executing);
             await ExecuteRules(RuleSet.Rules);
+
+            if (Status == RuleEngineStatus.Executing) {
+                Ctx.SetEngineStatus(RuleEngineStatus.Executed);
+            }
         }
 
         public async Task ExecuteRules(List<ITGRule> rules)
@@ -63,12 +68,16 @@ namespace RuleEngine
                             continue;
                         }
                         await rule.ExecutesAsync(ctx);
-                        rule.Status = RuleStatus.Pass;
+                        if (rule.Status == RuleStatus.Pending) {
+                            rule.Status = RuleStatus.Pass;
+                        }
+                        
                     }
                 }
                 catch (Exception ex)
                 {   rule.Status = RuleStatus.Error;
                     ctx.SetEngineStatus(RuleEngineStatus.Faulted);
+                    ctx.SetRuleEngineErrMessage(ex.Message);
                     break;
                 }
             }
